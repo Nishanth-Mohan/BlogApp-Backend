@@ -79,3 +79,30 @@ export const google = async(req,res,next)=>{
       next(error)
    }
 }
+
+// export const gitHub = async(req,res,next)=>{
+//    const {name,email,profilePic}=req.body;
+//    try {
+//       const user = User.findOne({email});
+//       if(user){
+//          const token = jwt.sign({id:user._id},process.env.JWT_SECRET_KEY);
+//          const {username,profilePicture} = user;
+//          res.status(200).cookie('Access_Token',token,{
+//             httpOnly:true
+//          }).json({message:'User Loggedin Successfully',username, profilePicture})
+//       }
+//       else{
+//          const newUser = await new User({
+//             username: name,
+//             email,
+//             profilePicture:profilePic
+//          })
+//          await newUser.save()
+//          const { username, profilePicture } = newUser;
+//          res.status(200).json({ message: 'User Registered and Loggedin Successfully', username, profilePicture });
+//       }
+//    } catch (error) {
+//       next(error)
+//    }
+// }
+
