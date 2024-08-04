@@ -31,7 +31,7 @@ export const registerUser = async(req,res,next)=>{
 
 export const loginUser = async(req,res,next)=>{
      const {email, password} = req.body;
-     if(!email || !password){
+     if(!email || !password || email === "" || password === ""){
          return next(errorHandler(400,'All the fields are required'));
      }
      try {
@@ -40,13 +40,11 @@ export const loginUser = async(req,res,next)=>{
          if(!userDetail || !userPassword){
            return next(errorHandler(400,'Invalid credentials'));
          }
-       const token = jwt.sign({id:userDetail._id},process.env.JWT_SECRET_KEY);
+       const token = jwt.sign({id:userDetail._id, isAdmin:userDetail.isAdmin},process.env.JWT_SECRET_KEY);
 
        const {password:passkey,...rest} = userDetail._doc;
 
-       res.status(200).cookie("Access_token",token,{
-         httpOnly:true
-       }).json({message:"User Loggedin Successfully",rest})
+       res.status(200).json({message:"User Loggedin Successfully",rest,token})
      } catch (error) {
       console.log(error);
       next(error)
@@ -58,11 +56,9 @@ export const google = async(req,res,next)=>{
    try {
       const user = await User.findOne({email});
       if(user){
-          const token = jwt.sign({id:user._id},process.env.JWT_SECRET_KEY);
+          const token = jwt.sign({id:user._id,isAdmin:user.isAdmin},process.env.JWT_SECRET_KEY);
           const {password:passkey,...rest} = user._doc;
-          res.status(200).cookie("Access_token",token,{
-            httpOnly:true
-          }).json({message:"User Loggedin Successfully",rest})
+          res.status(200).json({message:"User Loggedin Successfully",rest,token})
       } 
       else{
          const generatePassword = Math.random().toString(36).slice(-8)+Math.random().toString(36).slice(-8)
@@ -74,6 +70,9 @@ export const google = async(req,res,next)=>{
             profilePicture:profilePic
          });
          await newUser.save();
+         const token = jwt.sign({id: newUser._id,isAdmin:newUser.isAdmin},process.env.JWT_SECRET_KEY);   ///
+         const {password:passkey,...rest} = newUser._doc;
+         res.status(200).json({message:'User LoggedIn Successfully',rest,token})
       }
    } catch (error) {
       next(error)
@@ -87,9 +86,7 @@ export const google = async(req,res,next)=>{
 //       if(user){
 //          const token = jwt.sign({id:user._id},process.env.JWT_SECRET_KEY);
 //          const {username,profilePicture} = user;
-//          res.status(200).cookie('Access_Token',token,{
-//             httpOnly:true
-//          }).json({message:'User Loggedin Successfully',username, profilePicture})
+//          res.status(200).json({message:'User Loggedin Successfully',username, profilePicture,token})
 //       }
 //       else{
 //          const newUser = await new User({

@@ -3,6 +3,9 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from "./Database/config.js";
 import authRoute from "./Routers/authRouter.js";
+import userRoute from "./Routers/userRouter.js";
+import cookieParser from "cookie-parser";
+import postRoute from "./Routers/postRouter.js";
 
 dotenv.config();
 
@@ -15,13 +18,7 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.json());
-
-//error handler part
-app.use((err,req,res,next)=>{
-    const statusCode = err.statusCode || 500;
-    const message = err.message || 'Internal Server Error';
-    res.status(statusCode).json({message,statusCode,success:false})
-})
+app.use(cookieParser());
 
 //connecting part
 connectDB()
@@ -32,6 +29,15 @@ app.get("/", (req,res)=>{
 
 //API part
 app.use('/api/auth',authRoute)
+app.use('/api/user',userRoute)
+app.use('/api/post',postRoute)
+
+//Error handling middleware should be at the end
+app.use((err,req,res,next)=>{
+    const statusCode = err.statusCode || 500;
+    const message = err.message || 'Internal Server Error';
+    res.status(statusCode).json({message,statusCode,success:false})    
+})
 
 //listening port
 app.listen(process.env.PORT,()=>{
